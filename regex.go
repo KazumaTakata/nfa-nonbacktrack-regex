@@ -103,7 +103,8 @@ func isMatch(list StateList) bool {
 func ConstructNFA(postfix []byte) *State {
 
 	stack := Stack{frags: []*Frag{}}
-	for _, regex_ch := range postfix {
+	for i := 0; i < len(postfix); i++ {
+		regex_ch := postfix[i]
 		switch regex_ch {
 		case '.':
 			{
@@ -164,9 +165,12 @@ func ConstructNFA(postfix []byte) *State {
 				break
 
 			}
-
 		default:
 			{
+				if regex_ch == '\\' {
+					regex_ch = postfix[i+1]
+					i++
+				}
 
 				state := State{ch: regex_ch, out1: nil, out2: nil, state_type: Single}
 				frag := Frag{start: &state, out: []**State{&state.out1}}
@@ -194,6 +198,14 @@ func Expand_character_classes(input string) string {
 			for input[0] != ']' {
 				if input[1] != '-' {
 					alternate_element = append(alternate_element, string(input[0]))
+				} else {
+					start := input[0]
+					end := input[2]
+					for start != end+1 {
+						alternate_element = append(alternate_element, string(start))
+						start = start + 1
+					}
+					input = input[2:]
 				}
 				input = input[1:]
 			}
@@ -222,7 +234,7 @@ func main() {
 
 	i2p := shunting.NewIn2Post(operators)
 
-	input_regex := "a.[abw]"
+	input_regex := "[0-9].\\+.[0-9]"
 	input_expanded := Expand_character_classes(input_regex)
 
 	postfix := i2p.Parse(input_expanded)
@@ -230,7 +242,7 @@ func main() {
 	fmt.Printf("%s\n", postfix)
 
 	start_state := ConstructNFA(postfix)
-	state_list := SimulateNFA(start_state, "aw")
+	state_list := SimulateNFA(start_state, "1+2")
 
 	//	fmt.Printf("%+v", state_list)
 
