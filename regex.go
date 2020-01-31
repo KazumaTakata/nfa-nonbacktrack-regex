@@ -232,7 +232,7 @@ func main() {
 	operators = append(operators, shunting.Operator{Value: '+', Precedence: 2, IsLeftAssociative: true})
 	operators = append(operators, shunting.Operator{Value: '*', Precedence: 2, IsLeftAssociative: true})
 
-	i2p := shunting.NewIn2Post(operators)
+	i2p := shunting.NewIn2Post(operators, false)
 
 	input_regex := "[0-9].\\+.[0-9]"
 	input_expanded := Expand_character_classes(input_regex)
